@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AMR Dashboard</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: #0b1220;
+      color: white;
+      font-family: 'Orbitron', sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 20px;
+      color: #4cc9ff;
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #0e1626;
+      padding: 20px;
+      border-radius: 15px;
+      width: 250px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .title {
+      color: #4cc9ff;
+      margin-bottom: 10px;
+    }
+
+    /* SPEED GAUGE */
+    .gauge {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      border: 10px solid #22364d;
+      position: relative;
+    }
+
+    .needle {
+      width: 4px;
+      height: 120px;
+      background: #ff6b6b;
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom;
+      transform: rotate(-135deg);
+      transition: 0.3s;
+    }
+
+    .center {
+      width: 12px;
+      height: 12px;
+      background: #ff6b6b;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .speed-text {
+      text-align: center;
+      font-size: 50px;
+      color: #6affb3;
+    }
+
+    /* BATTERY BAR */
+    .bar {
+      width: 100%;
+      height: 10px;
+      background: #1a2636;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      background: #6affb3;
+      width: 50%;
+      transition: 0.5s;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🚗 AMR Dashboard</h1>
+
+<div class="container">
+
+  <!-- LEFT -->
+  <div class="card">
+    <div class="title">STEERING</div>
+    <div id="steer">0°</div>
+  </div>
+
+  <!-- CENTER SPEED -->
+  <div>
+    <div class="gauge">
+      <div class="needle" id="needle"></div>
+      <div class="center"></div>
+    </div>
+    <div class="speed-text" id="speed">0</div>
+    <div style="text-align:center;">km/h</div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="card">
+    <div class="title">BATTERY</div>
+    <div class="bar">
+      <div class="fill" id="batteryBar"></div>
+    </div>
+    <div id="battery">0%</div>
+  </div>
+
+</div>
+
+<script>
+  function updateUI(data) {
+    let speed = data.speed || 0;
+    let battery = data.battery || 0;
+    let steer = data.steer || 0;
+
+    // Speed text
+    document.getElementById("speed").innerText = Math.round(speed);
+
+    // Needle rotation (-135 to +135)
+    let angle = -135 + (speed / 120) * 270;
+    document.getElementById("needle").style.transform = `rotate(${angle}deg)`;
+
+    // Battery
+    document.getElementById("battery").innerText = battery.toFixed(1) + "%";
+    document.getElementById("batteryBar").style.width = battery + "%";
+
+    // Steering
+    document.getElementById("steer").innerText = steer.toFixed(1) + "°";
+  }
+
+  setInterval(async () => {
+    const res = await fetch('/data');
+    const data = await res.json();
+    updateUI(data);
+  }, 500);
+</script>
+
+</body>
+</html>
